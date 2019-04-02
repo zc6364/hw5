@@ -1,0 +1,234 @@
+function [outputArg1,outputArg2] = low_gaussian(image,sigma,n)
+%高斯低通滤波器
+
+I = imread(image);
+[row, column] = size(I);
+P = 2*row;
+Q = 2*column;
+F = zeros(P,Q);
+F(1:row,1:column) = I;
+F_f = fftshift(fft2(F));
+S_chuli = 0;
+S_local = 0;
+for u = 1:P
+    for v = 1:Q
+        D(u,v) = sqrt(((u - P/2)^2 + (v - Q/2)^2));
+        H(u,v) = exp(-D(u,v)^2/(2*sigma^2));
+    end
+end
+F_f1 = F_f.*H;
+F_f1 = ifftshift(F_f1);
+final = uint8(real(ifft2(F_f1)));
+final_1 = final(1:row,1:column);
+
+for i = 1:P
+    for j = 1:Q
+        L = (abs(F_f(i,j)))^2;
+        S_local = S_local + L;
+        L_1 = abs(F_f1(i,j))^2;
+        S_chuli = S_chuli +L_1;
+    end
+end
+ratio = S_chuli/S_local
+
+figure(1);
+subplot(1,4,1);
+imshow(image);
+title(image);
+subplot(1,4,n+1);
+imshow(final_1,[]);
+title([ num2str(sigma) ',功率谱比' num2str(ratio)]);
+% figure;
+% i = 1:P;
+% j = 1:Q;
+% [i,j] = meshgrid(i,j);
+% plot3(i,j,H)
+end
+
+function [outputArg1,outputArg2] = low_butterworth(image,sigma,n,x)
+%低通巴特沃斯滤波器
+I = imread(image);
+[row, column] = size(I);
+P = 2*row;
+Q = 2*column;
+F = zeros(P,Q);
+F(1:row,1:column) = I;
+F_f = fftshift(fft2(F));
+S_chuli = 0;
+S_local = 0;
+for u = 1:P
+    for v = 1:Q
+        D(u,v) = sqrt(((u - P/2)^2 + (v - Q/2)^2));
+        H(u,v) = 1/(1+(D(u,v)/sigma)^(2*n));
+    end
+end
+F_f1 = F_f.*H;
+F_f1 = ifftshift(F_f1);
+final = uint8(real(ifft2(F_f1)));
+final_1 = final(1:row,1:column);
+figure;
+subplot(1,2,1);
+imshow(image);
+subplot(1,2,2);
+imshow(final_1,[]);
+for i = 1:P
+    for j = 1:Q
+        L = (abs(F_f(i,j)))^2;
+        S_local = S_local + L;
+        L_1 = abs(F_f1(i,j))^2;
+        S_chuli = S_chuli +L_1;
+    end
+end
+ratio = S_chuli/S_local
+figure(1);
+subplot(1,4,1);
+imshow(image);
+title(image);
+subplot(1,4,x+1);
+imshow(final_1,[]);
+title([ num2str(sigma) ',功率谱比' num2str(ratio)]);
+end
+
+function [outputArg1,outputArg2] = high_guassian(image,sigma,n)
+%高斯高通滤波器
+I = imread(image);
+[row, column] = size(I);
+P = 2*row;
+Q = 2*column;
+F = zeros(P,Q);
+F(1:row,1:column) = I;
+F_f = fftshift(fft2(F));
+S_chuli = 0;
+S_local = 0;
+for u = 1:P
+    for v = 1:Q
+        D(u,v) = sqrt(((u - P/2)^2 + (v - Q/2)^2));
+        H(u,v) = 1 - exp(-D(u,v)^2/(2*sigma^2));
+    end
+end
+F_f1 = F_f.*H;
+F_f1 = ifftshift(F_f1);
+final = uint8(real(ifft2(F_f1)));
+final_1 = final(1:row,1:column);
+for i = 1:P
+    for j = 1:Q
+        L = (abs(F_f(i,j)))^2;
+        S_local = S_local + L;
+        L_1 = abs(F_f1(i,j))^2;
+        S_chuli = S_chuli +L_1;
+    end
+end
+ratio = S_chuli/S_local
+
+figure(1);
+subplot(1,4,1);
+imshow(image);
+title(image);
+subplot(1,4,n+1);
+imshow(final_1,[]);
+title([ num2str(sigma) ',功率谱比' num2str(ratio)]);
+end
+
+function [outputArg1,outputArg2] = high_butterworth(image,sigma,n,x)
+%高通巴特沃斯滤波器
+I = imread(image);
+[row, column] = size(I);
+P = 2*row;
+Q = 2*column;
+F = zeros(P,Q);
+F(1:row,1:column) = I;
+F_f = fftshift(fft2(F));
+S_chuli = 0;
+S_local = 0;
+for u = 1:P
+    for v = 1:Q
+        D(u,v) = sqrt(((u - P/2)^2 + (v - Q/2)^2));
+        H(u,v) =1 - 1/(1+(D(u,v)/sigma)^(2*n));
+    end
+end
+F_f1 = F_f.*H;
+F_f1 = ifftshift(F_f1);
+final = uint8(real(ifft2(F_f1)));
+final_1 = final(1:row,1:column);
+%final_1 = 256.*final_1./max(max(final_1));
+for i = 1:P
+    for j = 1:Q
+        L = (abs(F_f(i,j)))^2;
+        S_local = S_local + L;
+        L_1 = abs(F_f1(i,j))^2;
+        S_chuli = S_chuli +L_1;
+    end
+end
+ratio = S_chuli/S_local
+
+figure(1);
+subplot(1,4,1);
+imshow(image);
+title(image);
+subplot(1,4,x+1);
+imshow(final_1,[]);
+title([ num2str(sigma) ',功率谱比' num2str(ratio)]);
+end
+
+function [outputArg1,outputArg2] = high_laplace(image)
+%高通laplace滤波器
+I = imread(image);
+[row, column] = size(I);
+P = 2*row;
+Q = 2*column;
+F = zeros(P,Q);
+F(1:row,1:column) = I;
+F_f = fftshift(fft2(F));
+for u = 1:P
+    for v = 1:Q
+        D(u,v) = sqrt(((u - P/2)^2 + (v - Q/2)^2));
+        H(u,v) = -4*pi^2*D(u,v)^2;
+    end
+end
+F_f1 = F_f.*H;
+F_f1 = ifftshift(F_f1);
+final = uint8(real(ifft2(F_f1)));
+final_1 = final(1:row,1:column);
+final_1 = 256.*final_1./max(max(final_1));
+% maxf2 = max(max(real(final_1)));
+% for u = 1:P
+%     for v = 1:Q
+%         final_2 = I + final_1/maxf2
+%     end
+% end
+figure;
+subplot(1,2,1);
+imshow(image);
+title(image);
+subplot(1,2,2);
+imshow(final_1,[0,1]);
+title('高通拉普拉斯');
+end
+
+function [outputArg1,outputArg2] = high_usm(image,sigma,k1,k2)
+%USM滤波器
+I = imread(image);
+[row column] = size(I);
+P = row*2;
+Q = column*2;
+F = zeros(P,Q);
+F(1:row,1:column) = I;
+F_1 = fftshift(fft2(F));
+for u = 1:P;
+    for v = 1:Q
+        D(u,v) = sqrt(((u - P/2)^2 + (v - Q/2)^2));
+        H(u,v) = 1/(1+(D(u,v)/sigma)^(2*2));
+    end
+end
+G = (k1 + k2*H(u,v)).*F_1;
+g = fftshift(G);
+final = uint8(real(ifft2(g)));
+final_1 = final(1:row,1:column);
+figure;
+subplot(1,2,1);
+imshow(image);
+title(image);
+subplot(1,2,2);
+imshow(final_1,[]);
+title('高通USM');
+end
